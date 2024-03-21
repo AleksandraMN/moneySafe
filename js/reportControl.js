@@ -1,6 +1,7 @@
+import { financeControl } from "./financeControl.js";
 import { reformatDate } from "./helpers.js";
 import { OverlayScrollbars } from "./overlayscrollbars.esm.min.js";
-import { getData } from "./service.js";
+import { delData, getData } from "./service.js";
 import { storage } from "./storage.js";
 
 
@@ -67,7 +68,7 @@ const renderReport = (data) => {
       <td class="report__cell">${typesOperation[type]}</td>
       <td class="report__action-cell">
         <button
-          class="report__button report__button_table" data-del=${id}>&#10006;</button>
+          class="report__button report__button_table" data-id=${id}>&#10006;</button>
       </td>
     `;
     return reportRow;
@@ -77,12 +78,23 @@ const renderReport = (data) => {
 };
 
 export const reportControl = () => {
-  reportTable.addEventListener('click', ({target}) => {
+  reportTable.addEventListener('click', async ({target}) => {
+    // удаление товаров в таблице
+    const buttonDel = target.closest('.report__button_table');
+
+    if (buttonDel) {
+      await delData(`/finance/${buttonDel.dataset.id}`);
+
+      const reportRow = buttonDel.closest('.report__row');
+      reportRow.remove();
+      financeControl();
+      // clearChart();
+    }
+    // сортировка по алфавиту
     const targetSort = target.closest('[data-sort]');
     const sortField = targetSort.dataset.sort;
     const dir = targetSort.dataset.dir;
     if (targetSort) {
-      console.log(targetSort.dataset.sort);
       renderReport(
         [...storage.data].sort((a, b) => {
           if (dir === 'up') {
@@ -95,18 +107,15 @@ export const reportControl = () => {
             return a[sortField] < b[sortField] ? -1 : 1;
         }),
     );
-    
+
     if (dir === 'up') {
       dir = 'down';
     } else {
       dir = 'up';
     }
   }
-
-    const targetDel = target.closest('[data-del]');
-    if (targetDel)
-    console.log(targetDel.dataset.del);
-  })
+    
+  });
 
 
    financeReport.addEventListener('click', async () => {

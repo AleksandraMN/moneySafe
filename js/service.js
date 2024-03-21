@@ -34,3 +34,20 @@ export const getData = async (url) => {
   }
 };
 
+
+export const delData = async (url) => {
+  try {
+    const response = await fetch(`${API_URL}${url}`, {
+      method: 'DELETE',
+    });
+    console.log('response:', response);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Ошибка при удалении данных:", error);
+    throw error;
+  }
+};
+
