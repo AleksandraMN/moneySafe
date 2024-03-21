@@ -1,6 +1,8 @@
 import { reformatDate } from "./helpers.js";
 import { OverlayScrollbars } from "./overlayscrollbars.esm.min.js";
 import { getData } from "./service.js";
+import { storage } from "./storage.js";
+
 
 const typesOperation = {
   income: 'доход',
@@ -11,6 +13,7 @@ const financeReport = document.querySelector('.finance__report');
 const report = document.querySelector('.report');
 const reportOperationList = document.querySelector('.report__operation-list');
 const reportDates = document.querySelector('.report__dates');
+const reportTable = document.querySelector('.report__table');
 
 OverlayScrollbars(report, {}); // скролл
 
@@ -64,7 +67,7 @@ const renderReport = (data) => {
       <td class="report__cell">${typesOperation[type]}</td>
       <td class="report__action-cell">
         <button
-          class="report__button report__button_table" data-id=${id}>&#10006;</button>
+          class="report__button report__button_table" data-del=${id}>&#10006;</button>
       </td>
     `;
     return reportRow;
@@ -74,8 +77,35 @@ const renderReport = (data) => {
 };
 
 export const reportControl = () => {
-  reportOperationList.addEventListener('click', ({target}) => {
-    console.log(target.dataset.id);
+  reportTable.addEventListener('click', ({target}) => {
+    const targetSort = target.closest('[data-sort]');
+    const sortField = targetSort.dataset.sort;
+    const dir = targetSort.dataset.dir;
+    if (targetSort) {
+      console.log(targetSort.dataset.sort);
+      renderReport(
+        [...storage.data].sort((a, b) => {
+          if (dir === 'up') {
+          [a, b] = [b, a];
+          }
+
+          if (sortField === 'amount') {
+            return parseFloat(a[sortField]) < parseFloat(b[sortField]) ? -1 : 1;
+          }
+            return a[sortField] < b[sortField] ? -1 : 1;
+        }),
+    );
+    
+    if (dir === 'up') {
+      dir = 'down';
+    } else {
+      dir = 'up';
+    }
+  }
+
+    const targetDel = target.closest('[data-del]');
+    if (targetDel)
+    console.log(targetDel.dataset.del);
   })
 
 
@@ -85,7 +115,7 @@ export const reportControl = () => {
       financeReport.disabled = true;
     
       const data = await getData("/finance");
-    
+      storage.data = data;
       financeReport.textContent = textContent;
       financeReport.disabled = false;
     
