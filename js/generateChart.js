@@ -28,11 +28,13 @@ export const generateChart = (data) => {
 
    const [accIncome, incomeAmounts] = reduceOperationInDate(incomeData);
    const [accExpenses, expensesAmounts] = reduceOperationInDate(expensesData);
-   
+   console.log(incomeAmounts);
+   console.log(expensesAmounts);
 
    const balanceAmounts = incomeAmounts.map(
       (income, i) => income - expensesAmounts[i],
    );
+   console.log(balanceAmounts);
 
    const canvasChart = document.createElement('canvas');
    //canvasChart.id ='myChart';
@@ -46,26 +48,26 @@ export const generateChart = (data) => {
    }
 
   myChart = new Chart(ctx, {
-   type: "line",
+   type: 'line',
    data: {
       labels: chartLabel,
       datasets: [
     {
       label: "Доходы",  
-      date: incomeAmounts, 
-      borderWidth: 5, 
+      data: incomeAmounts, 
+      borderWidth: 2, 
       hidden: true,   
    },
    {
       label: "Расходы",  
-      date: expensesAmounts, 
-      borderWidth: 5, 
+      data: expensesAmounts, 
+      borderWidth: 2, 
       hidden: true,
    }, 
    {
       label: "Баланс",  
-      date: balanceAmounts, 
-      borderWidth: 5, 
+      data: balanceAmounts, 
+      borderWidth: 2, 
       hidden: false,
    },     
    ],
